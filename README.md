@@ -4,8 +4,15 @@
 
 <div align="center">
 
-<!-- PIXEL ART ANIMATED BANNER -->
-<img width="100%" src="./banner.svg" alt="POG Sudarshan — Pixel Art Game Banner" />
+<!-- PIXEL ART ANIMATED BANNER — clickable, opens the game -->
+<a href="https://sudarshan-prog.github.io/Sudarshan-prog/pog_sudarshan_game_v2.html" title="▶ Click to Play POG Runner!">
+  <img width="100%" src="./banner.svg" alt="POG Sudarshan — Click to Play!" />
+</a>
+
+<!-- GAME CTA -->
+<sub>🎮 <b>The banner above is playable</b> — click it to launch POG Runner!</sub>
+
+<br/><br/>
 
 <!-- TYPING TAGLINE -->
 <a href="https://pogpro.in">
@@ -38,7 +45,6 @@
 
 <!-- ░░░░░░░░░░░  WHO AM I  ░░░░░░░░░░░ -->
 
-
 ## ◈ `$ whoami`
 
 ```js
@@ -61,8 +67,6 @@ const SUDARSHAN = {
 };
 ```
 
-<br clear="right"/>
-
 ---
 
 <!-- ░░░░░░░░░░░  TECH ARSENAL  ░░░░░░░░░░░ -->
@@ -81,7 +85,7 @@ const SUDARSHAN = {
 ![TailwindCSS](https://img.shields.io/badge/Tailwind-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
-![Spline](https://img.shields.io/badge/Spline_3D-000000?style=flat-square&logo=data:image/png;base64,&logoColor=white)
+![Spline](https://img.shields.io/badge/Spline_3D-000000?style=flat-square&logoColor=white)
 
 </td>
 </tr>
@@ -165,6 +169,26 @@ const SUDARSHAN = {
 ║  → Mobile App                                       [BUILT ✓]       ║
 ╚══════════════════════════════════════════════════════════════════════╝
 ```
+
+</div>
+
+---
+
+<!-- ░░░░░░░░░░░  GAME  ░░░░░░░░░░░ -->
+
+## ◈ Play My Profile Game `🎮`
+
+<div align="center">
+
+[![Play POG Runner](https://img.shields.io/badge/🎮_PLAY_POG_RUNNER-_-F5A623?style=for-the-badge&labelColor=0d0d0d)](https://sudarshan-prog.github.io/Sudarshan-prog/pog_sudarshan_game_v2.html)
+
+```
+SPACE / TAP → Jump    ·    Double Jump enabled
+Collect [ CODE BLOCKS ] to score
+Avoid   < BUG enemies > or it's game over
+```
+
+> Built with pure HTML5 Canvas + physics — no libraries, no engines. Just code.
 
 </div>
 
@@ -288,5 +312,5 @@ open_to: ["Internships", "Collabs", "Freelance", "Open Source"]
 
 ---
 
-<!-- FOOTER WAVE — BRAND ORANGE TO BLACK -->
+<!-- FOOTER — BRAND ORANGE TO BLACK -->
 <img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=0:F5A623,50:cc8800,100:0d0d0d&height=130&section=footer&text=POG+%E2%96%B2+SUDARSHAN&fontSize=22&fontColor=0d0d0d&fontAlignY=68&fontAlign=50&animation=fadeIn"/>
