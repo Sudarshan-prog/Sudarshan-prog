@@ -11,7 +11,7 @@
 
 <!-- GAME CTA -->
 <a href="https://sudarshan-prog.github.io/Sudarshan-prog/pog_sudarshan_game_v2.html">
-  <img src="https://img.shields.io/badge/🎮Try to score High-LIVE-F5A623?style=for-the-badge&labelColor=0d0d0d" alt="Play Game"/>
+  <img src="https://img.shields.io/badge/Try to score High-LIVE-F5A623?style=for-the-badge&labelColor=0d0d0d" alt="Play Game"/>
 </a>
 
 <br/><br/>
