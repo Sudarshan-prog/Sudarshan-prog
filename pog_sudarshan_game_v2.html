@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0d0d0d;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:'Courier New',monospace}
+canvas{display:block;border:2px solid #F5A623;border-radius:4px;image-rendering:pixelated}
+#ui{color:#F5A623;font-size:12px;margin-top:8px;text-align:center;letter-spacing:1px}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="ui">SPACE / TAP to jump · Double jump enabled · Avoid BUGS · Collect CODE BLOCKS</div>
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const W = 900, H = 320;
+canvas.width = W; canvas.height = H;
+canvas.style.maxWidth = '100%';
+
+const GRAVITY = 0.55, JUMP_FORCE = -13.5, GROUND_Y = H - 60;
+const SPEED_INIT = 4.5, SPEED_MAX = 10;
+
+let state = 'start', score = 0, hiScore = 0, frame = 0, speed = SPEED_INIT;
+let groundX = 0;
+
+// ── PARALLAX LAYERS ──────────────────────────────────────
+// 3 independent city layers at very different scroll speeds
+// Layer 0 = far bg (slowest, darkest)
+// Layer 1 = mid   (medium)
+// Layer 2 = near  (slightly faster, still behind player)
+
+const BG_LAYERS = [
+  { speed: 0.04, color: '#0e0e0e', winColor: 'rgba(245,166,35,0.07)', buildings: [], offset: 0 },
+  { speed: 0.10, color: '#111111', winColor: 'rgba(245,166,35,0.11)', buildings: [], offset: 0 },
+  { speed: 0.18, color: '#161616', winColor: 'rgba(245,166,35,0.16)', buildings: [], offset: 0 },
+];
+
+function genBuildings(layer, idx){
+  layer.buildings = [];
+  const spacing = idx === 0 ? 80 : idx === 1 ? 65 : 55;
+  const minH    = idx === 0 ? 80 : idx === 1 ? 55 : 40;
+  const maxH    = idx === 0 ? 130: idx === 1 ? 100: 75;
+  const minW    = idx === 0 ? 35 : idx === 1 ? 28 : 22;
+  const maxW    = idx === 0 ? 60 : idx === 1 ? 48 : 38;
+  let x = 0;
+  while(x < W * 3){
+    const w = minW + Math.random()*(maxW-minW);
+    const h = minH + Math.random()*(maxH-minH);
+    layer.buildings.push({ x, w, h });
+    x += w + 4 + Math.random()*spacing;
+  }
+}
+BG_LAYERS.forEach((l,i) => genBuildings(l, i));
+
+// ── STARS ────────────────────────────────────────────────
+const stars = [];
+for(let i=0;i<55;i++) stars.push({ x:Math.random()*W, y:Math.random()*(H*0.5), r:Math.random()<0.2?1.5:0.9, t:Math.random()*Math.PI*2 });
+
+// ── PLAYER ───────────────────────────────────────────────
+const player = {
+  x:120, y:GROUND_Y, w:32, h:48, vy:0, jumpsLeft:2, onGround:false,
+  animFrame:0, animTimer:0, dead:false, deathTimer:0,
+  reset(){
+    this.x=120; this.y=GROUND_Y; this.vy=0;
+    this.jumpsLeft=2; this.onGround=false;
+    this.dead=false; this.deathTimer=0; this.animFrame=0;
+  }
+};
+
+function jump(){
+  if(player.dead) return;
+  if(player.jumpsLeft > 0){
+    player.vy = player.jumpsLeft===2 ? JUMP_FORCE : JUMP_FORCE*0.88;
+    player.jumpsLeft--;
+    player.onGround = false;
+    spawnJumpParticles();
+  }
+}
+
+// ── PLATFORMS ────────────────────────────────────────────
+let platforms = [];
+function makePlatform(x){
+  return { x, y: GROUND_Y - 55 - Math.random()*70, w: 90+Math.random()*60, h:14 };
+}
+platforms = [makePlatform(420), makePlatform(710)];
+
+// ── BUGS ─────────────────────────────────────────────────
+let bugs = [];
+function makeBug(x){
+  const h = 28 + (Math.random()>0.5?16:0);
+  return { x, y:GROUND_Y+player.h-h, w:22, h, animFrame:0, animTimer:0 };
+}
+
+// ── COLLECTIBLES ─────────────────────────────────────────
+const CODE_LABELS = ['</>','{ }','AI','JS','TS','PY','DB','⚡','{}','=>'];
+let coins = [];
+function makeCoin(x,y){
+  return { x, y, w:20, h:20, label:CODE_LABELS[Math.floor(Math.random()*CODE_LABELS.length)], animT:Math.random()*Math.PI*2, collected:false };
+}
+
+// ── PARTICLES ────────────────────────────────────────────
+let particles = [];
+function spawnJumpParticles(){
+  for(let i=0;i<8;i++){
+    const a=Math.PI+(Math.random()-0.5)*1.2, spd=1.5+Math.random()*3;
+    particles.push({x:player.x+player.w/2,y:player.y+player.h,vx:Math.cos(a)*spd,vy:Math.sin(a)*spd,life:1,r:2+Math.random()*2,col:'#F5A623'});
+  }
+}
+function spawnCollectParticles(x,y){
+  for(let i=0;i<10;i++){
+    const a=Math.random()*Math.PI*2, spd=2+Math.random()*4;
+    particles.push({x,y,vx:Math.cos(a)*spd,vy:Math.sin(a)*spd,life:1,r:2+Math.random()*3,col:'#F5A623'});
+  }
+}
+function spawnDeathParticles(){
+  for(let i=0;i<20;i++){
+    const a=Math.random()*Math.PI*2, spd=2+Math.random()*5;
+    particles.push({x:player.x+player.w/2,y:player.y+player.h/2,vx:Math.cos(a)*spd,vy:Math.sin(a)*spd,life:1,r:3+Math.random()*4,col:i%2===0?'#F5A623':'#cc2200'});
+  }
+}
+
+// ── INPUT ─────────────────────────────────────────────────
+let keys = {};
+document.addEventListener('keydown', e=>{
+  if(!keys[e.code]){
+    keys[e.code]=true;
+    if(e.code==='Space'||e.code==='ArrowUp'){
+      e.preventDefault();
+      if(state==='start'||state==='dead') startGame(); else jump();
+    }
+  }
+});
+document.addEventListener('keyup', e=>{ keys[e.code]=false; });
+canvas.addEventListener('touchstart', e=>{ e.preventDefault(); if(state==='start'||state==='dead') startGame(); else jump(); },{passive:false});
+canvas.addEventListener('mousedown', ()=>{ if(state==='start'||state==='dead') startGame(); else jump(); });
+
+function startGame(){
+  state='play'; score=0; frame=0; speed=SPEED_INIT;
+  bugs=[]; coins=[]; particles=[];
+  platforms=[makePlatform(500), makePlatform(780)];
+  bugTimer=100; coinTimer=60; platformTimer=220;
+  player.reset();
+}
+
+function aabb(a,b){ return a.x<b.x+b.w && a.x+a.w>b.x && a.y<b.y+b.h && a.y+a.h>b.y; }
+
+let bugTimer=80, coinTimer=50, platformTimer=200;
+
+// ── UPDATE ────────────────────────────────────────────────
+function update(){
+  frame++;
+  speed = Math.min(SPEED_MAX, SPEED_INIT + score*0.004);
+
+  // Parallax offsets — each layer moves independently at its own crawl speed
+  BG_LAYERS.forEach(l => { l.offset += speed * l.speed; });
+  groundX = (groundX - speed + W*4) % (W*4);
+  stars.forEach(s => s.t += 0.04);
+
+  if(!player.dead){
+    player.vy += GRAVITY;
+    player.y  += player.vy;
+    if(player.y >= GROUND_Y){ player.y=GROUND_Y; player.vy=0; player.onGround=true; player.jumpsLeft=2; }
+    platforms.forEach(p=>{
+      if(player.vy>=0 && player.x+player.w-4>p.x && player.x+4<p.x+p.w && player.y+player.h>p.y && player.y+player.h<p.y+p.h+14){
+        player.y=p.y-player.h; player.vy=0; player.onGround=true; player.jumpsLeft=2;
+      }
+    });
+    if(player.y<30){ player.y=30; player.vy=0; }
+    if(player.onGround){ player.animTimer++; if(player.animTimer%6===0) player.animFrame=(player.animFrame+1)%4; }
+
+    bugs.forEach(b=>{
+      if(aabb({x:player.x+4,y:player.y+6,w:player.w-8,h:player.h-6},b) && !player.dead){
+        player.dead=true; player.deathTimer=80; spawnDeathParticles();
+        if(score>hiScore) hiScore=score;
+      }
+    });
+    coins.forEach(c=>{
+      if(!c.collected && aabb({x:player.x+4,y:player.y+4,w:player.w-8,h:player.h-8},c)){
+        c.collected=true; score+=10; spawnCollectParticles(c.x+c.w/2,c.y+c.h/2);
+      }
+    });
+    score += speed*0.02;
+  } else {
+    player.deathTimer--;
+    player.vy += GRAVITY*0.4;
+    player.y  += player.vy;
+    if(player.deathTimer<=0){ state='dead'; }
+  }
+
+  platforms.forEach(p=>p.x-=speed);
+  platforms=platforms.filter(p=>p.x+p.w>-10);
+  platformTimer--;
+  if(platformTimer<=0){ platforms.push(makePlatform(W+10)); platformTimer=160+Math.random()*120; }
+
+  bugs.forEach(b=>{ b.x-=speed; b.animTimer++; if(b.animTimer%8===0) b.animFrame=(b.animFrame+1)%2; });
+  bugs=bugs.filter(b=>b.x+b.w>-10);
+  bugTimer--;
+  if(bugTimer<=0 && state==='play'){
+    bugs.push(makeBug(W+20));
+    bugTimer=Math.max(40,90-score*0.03+Math.random()*60);
+  }
+
+  coins.forEach(c=>{ c.x-=speed; c.animT+=0.1; });
+  coins=coins.filter(c=>c.x+c.w>-10&&!c.collected);
+  coinTimer--;
+  if(coinTimer<=0){
+    const y=GROUND_Y-30-Math.random()*100;
+    for(let i=0;i<3;i++) coins.push(makeCoin(W+20+i*32,y));
+    coinTimer=70+Math.random()*60;
+  }
+
+  particles.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; p.vy+=0.15; p.life-=0.03; });
+  particles=particles.filter(p=>p.life>0);
+}
+
+// ── DRAW HELPERS ─────────────────────────────────────────
+function px(v){ return Math.round(v); }
+function drawRoundRect(x,y,w,h,r,fill,stroke,sw=1){
+  ctx.beginPath();
+  ctx.moveTo(px(x+r),px(y)); ctx.lineTo(px(x+w-r),px(y));
+  ctx.quadraticCurveTo(px(x+w),px(y),px(x+w),px(y+r));
+  ctx.lineTo(px(x+w),px(y+h-r));
+  ctx.quadraticCurveTo(px(x+w),px(y+h),px(x+w-r),px(y+h));
+  ctx.lineTo(px(x+r),px(y+h));
+  ctx.quadraticCurveTo(px(x),px(y+h),px(x),px(y+h-r));
+  ctx.lineTo(px(x),px(y+r));
+  ctx.quadraticCurveTo(px(x),px(y),px(x+r),px(y));
+  ctx.closePath();
+  if(fill){ctx.fillStyle=fill;ctx.fill();}
+  if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=sw;ctx.stroke();}
+}
+
+// ── DRAW BG ──────────────────────────────────────────────
+function drawBG(){
+  // Sky
+  const grad=ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0,'#050505'); grad.addColorStop(1,'#0d0d0d');
+  ctx.fillStyle=grad; ctx.fillRect(0,0,W,H);
+
+  // Stars
+  stars.forEach(s=>{
+    const alpha=0.25+(Math.sin(s.t)+1)*0.35;
+    ctx.globalAlpha=alpha;
+    ctx.fillStyle=Math.random()>0.85?'#F5A623':'#fff';
+    ctx.beginPath(); ctx.arc(px(s.x),px(s.y),s.r,0,Math.PI*2); ctx.fill();
+  });
+  ctx.globalAlpha=1;
+
+  // Draw each parallax layer from back to front
+  BG_LAYERS.forEach((layer, li) => {
+    const groundBase = GROUND_Y + player.h;
+    layer.buildings.forEach(b => {
+      // Wrap x using the layer's own offset
+      const totalWidth = layer.buildings[layer.buildings.length-1].x + layer.buildings[layer.buildings.length-1].w + 10;
+      const rawX = b.x - (layer.offset % totalWidth);
+
+      // Draw two copies for seamless wrap
+      [-totalWidth, 0].forEach(shift => {
+        const bx = rawX + shift;
+        if(bx + b.w < -10 || bx > W + 10) return;
+
+        ctx.fillStyle = layer.color;
+        ctx.fillRect(px(bx), groundBase - b.h, b.w, b.h);
+
+        // Windows — deterministic per building, no random flicker
+        ctx.fillStyle = layer.winColor;
+        for(let wy=groundBase-b.h+6; wy<groundBase-8; wy+=14){
+          for(let wx=bx+4; wx<bx+b.w-4; wx+=10){
+            // Use a stable per-window value based on position, not random
+            const winSeed = (Math.sin(wx*0.3+wy*0.7)*0.5+0.5);
+            if(winSeed > 0.45) ctx.fillRect(px(wx), wy, 5, 6);
+          }
+        }
+      });
+    });
+  });
+}
+
+// ── DRAW GROUND ───────────────────────────────────────────
+function drawGround(){
+  ctx.fillStyle='#1a1a1a';
+  ctx.fillRect(0,GROUND_Y+player.h,W,H-(GROUND_Y+player.h));
+  ctx.fillStyle='#F5A623';
+  ctx.fillRect(0,GROUND_Y+player.h,W,3);
+  ctx.strokeStyle='#2a2a2a'; ctx.lineWidth=1;
+  const off=(W*4-groundX)%60;
+  for(let x=-60+off;x<W+60;x+=60){
+    ctx.beginPath(); ctx.moveTo(px(x),GROUND_Y+player.h+12); ctx.lineTo(px(x)+40,GROUND_Y+player.h+12); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(px(x)+5,GROUND_Y+player.h+22); ctx.lineTo(px(x)+50,GROUND_Y+player.h+22); ctx.stroke();
+  }
+}
+
+// ── DRAW PLATFORM ─────────────────────────────────────────
+function drawPlatform(p){
+  ctx.fillStyle='rgba(0,0,0,0.3)';
+  ctx.fillRect(px(p.x)+4,px(p.y)+p.h+4,p.w,6);
+  drawRoundRect(p.x,p.y,p.w,p.h,2,'#cc8800',null);
+  ctx.fillStyle='#ffbe4d';
+  ctx.fillRect(px(p.x)+2,px(p.y),p.w-4,4);
+  ctx.fillStyle='#aa6600';
+  for(let i=6;i<p.w-4;i+=14) ctx.fillRect(px(p.x)+i,px(p.y),5,2);
+}
+
+// ── DRAW COIN ─────────────────────────────────────────────
+function drawCoin(c){
+  const y=px(c.y+Math.sin(c.animT)*4);
+  const glow=(Math.sin(c.animT*2)+1)*0.5;
+  ctx.shadowBlur=8*glow; ctx.shadowColor='#F5A623';
+  drawRoundRect(c.x,y,c.w,c.h,3,'#cc8800','#F5A623',1.5);
+  ctx.shadowBlur=0;
+  ctx.fillStyle='#0d0d0d'; ctx.font='bold 8px monospace'; ctx.textAlign='center';
+  ctx.fillText(c.label,px(c.x+c.w/2),y+c.h/2+3);
+}
+
+// ── DRAW BUG ──────────────────────────────────────────────
+function drawBug(b){
+  const x=px(b.x),y=px(b.y),blink=b.animFrame===1;
+  drawRoundRect(x,y,b.w,b.h,3,'#cc2200','#ff3300',1);
+  ctx.fillStyle='#fff';
+  ctx.fillRect(x+3,y+4,5,5); ctx.fillRect(x+b.w-8,y+4,5,5);
+  ctx.fillStyle='#0d0d0d';
+  ctx.fillRect(x+4,y+5,3,3); ctx.fillRect(x+b.w-7,y+5,3,3);
+  ctx.strokeStyle='#ff3300'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(x+6,y); ctx.lineTo(x+3,y-8); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x+b.w-6,y); ctx.lineTo(x+b.w-3,y-8); ctx.stroke();
+  ctx.fillStyle='#ff5500';
+  ctx.beginPath(); ctx.arc(x+3,y-8,2.5,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x+b.w-3,y-8,2.5,0,Math.PI*2); ctx.fill();
+  const legY=y+b.h*0.6, off=blink?3:0;
+  ctx.strokeStyle='#cc2200'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(x+4,legY); ctx.lineTo(x-5,legY+off+4); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x+4,legY+6); ctx.lineTo(x-6,legY+off+10); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x+b.w-4,legY); ctx.lineTo(x+b.w+5,legY+off+4); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x+b.w-4,legY+6); ctx.lineTo(x+b.w+6,legY+off+10); ctx.stroke();
+  ctx.fillStyle='#ff4400'; ctx.font='bold 7px monospace'; ctx.textAlign='center';
+  ctx.fillText('BUG',x+b.w/2,y+b.h+10);
+}
+
+// ── DRAW PLAYER ───────────────────────────────────────────
+function drawPlayer(p){
+  const x=px(p.x),y=px(p.y);
+  const alive=!p.dead;
+  const legFrames=[[0,0],[6,-4],[0,0],[-6,-4]];
+  const lf=legFrames[p.animFrame], rf=legFrames[(p.animFrame+2)%4];
+  ctx.fillStyle='#222';
+  ctx.fillRect(x+4+lf[0],y+p.h-20,9,20);
+  ctx.fillStyle='#0d0d0d';
+  ctx.fillRect(x+2+lf[0],y+p.h-4,12,5);
+  ctx.fillStyle='#222';
+  ctx.fillRect(x+p.w-13+rf[0],y+p.h-20,9,20);
+  ctx.fillStyle='#0d0d0d';
+  ctx.fillRect(x+p.w-15+rf[0],y+p.h-4,12,5);
+  ctx.fillStyle=alive?'#F5A623':'#cc2200';
+  ctx.fillRect(x+2,y+p.h-38,p.w-4,20);
+  ctx.fillStyle='#cc8800';
+  ctx.fillRect(x+5,y+p.h-33,p.w-10,5);
+  ctx.fillStyle='#0d0d0d'; ctx.font='bold 6px monospace'; ctx.textAlign='center';
+  ctx.fillText('POG',x+p.w/2,y+p.h-29);
+  const armL=p.animFrame===1?5:-5, armR=p.animFrame===1?-5:5;
+  ctx.fillStyle=alive?'#F5A623':'#cc2200';
+  ctx.fillRect(x-5,y+p.h-36+armL,8,16);
+  ctx.fillStyle='#c8956c';
+  ctx.fillRect(x-6,y+p.h-22+armL,8,6);
+  ctx.fillStyle=alive?'#F5A623':'#cc2200';
+  ctx.fillRect(x+p.w-3,y+p.h-36+armR,8,16);
+  ctx.fillStyle='#c8956c';
+  ctx.fillRect(x+p.w-2,y+p.h-22+armR,8,6);
+  drawRoundRect(x+2,y+p.h-58,p.w-4,26,3,'#c8956c',null);
+  drawRoundRect(x+2,y+p.h-58,p.w-4,10,2,'#1a1a1a',null);
+  drawRoundRect(x,y+p.h-56,7,8,1,'#1a1a1a',null);
+  drawRoundRect(x+p.w-7,y+p.h-56,7,8,1,'#1a1a1a',null);
+  drawRoundRect(x+p.w/2-4,y+p.h-63,8,10,1,'#1a1a1a',null);
+  drawRoundRect(x+5,y+p.h-48,9,7,1,'rgba(100,200,255,0.15)','#0d0d0d',1.5);
+  drawRoundRect(x+p.w-14,y+p.h-48,9,7,1,'rgba(100,200,255,0.15)','#0d0d0d',1.5);
+  ctx.beginPath(); ctx.moveTo(x+14,y+p.h-44); ctx.lineTo(x+p.w-14,y+p.h-44);
+  ctx.strokeStyle='#0d0d0d'; ctx.lineWidth=1; ctx.stroke();
+  ctx.fillStyle='#0d0d0d';
+  ctx.fillRect(x+7,y+p.h-46,4,4); ctx.fillRect(x+p.w-11,y+p.h-46,4,4);
+  ctx.fillStyle='#c8956c';
+  ctx.fillRect(x,y+p.h-50,3,7); ctx.fillRect(x+p.w-3,y+p.h-50,3,7);
+  drawRoundRect(x,y+p.h-59,p.w,6,1,'#0d0d0d',null);
+  drawRoundRect(x-5,y+p.h-54,12,4,1,'#0d0d0d',null);
+  if(player.jumpsLeft===0 && !player.onGround){
+    ctx.strokeStyle='rgba(245,166,35,0.4)'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.ellipse(x+p.w/2,y+p.h+2,20,5,0,0,Math.PI*2); ctx.stroke();
+  }
+}
+
+// ── HUD ───────────────────────────────────────────────────
+function drawHUD(){
+  drawRoundRect(10,10,190,36,3,'#0d0d0d','#F5A623',1);
+  ctx.fillStyle='#666'; ctx.font='bold 9px monospace'; ctx.textAlign='left';
+  ctx.fillText('PLAYER 1  ·  POG SUDARSHAN',18,23);
+  ctx.fillStyle='#F5A623'; ctx.font='bold 14px monospace';
+  ctx.fillText(`SCORE: ${Math.floor(score).toString().padStart(6,'0')}`,18,40);
+  drawRoundRect(W-160,10,150,36,3,'#0d0d0d','#555',1);
+  ctx.fillStyle='#555'; ctx.font='bold 9px monospace'; ctx.textAlign='left';
+  ctx.fillText('HI-SCORE',W-152,23);
+  ctx.fillStyle='#ffbe4d'; ctx.font='bold 14px monospace';
+  ctx.fillText(Math.floor(hiScore).toString().padStart(6,'0'),W-152,40);
+  const spd=(speed-SPEED_INIT)/(SPEED_MAX-SPEED_INIT);
+  drawRoundRect(W/2-60,10,120,14,2,'#0d0d0d','#333',1);
+  if(spd>0) drawRoundRect(W/2-58,12,116*spd,10,1,'#F5A623',null);
+  ctx.fillStyle='#888'; ctx.font='bold 8px monospace'; ctx.textAlign='center';
+  ctx.fillText('SPEED',W/2,21);
+  ctx.fillStyle='#333'; ctx.font='bold 9px monospace'; ctx.textAlign='left';
+  ctx.fillText('JUMP:',10,58);
+  for(let i=0;i<2;i++){
+    drawRoundRect(52+i*20,47,15,15,2,i<player.jumpsLeft?'#F5A623':'#222','#555',1);
+    ctx.fillStyle=i<player.jumpsLeft?'#0d0d0d':'#444';
+    ctx.font='bold 10px monospace'; ctx.textAlign='center';
+    ctx.fillText('↑',52+i*20+7,58);
+  }
+}
+
+// ── OVERLAY ───────────────────────────────────────────────
+function drawOverlay(){
+  ctx.fillStyle='rgba(0,0,0,0.78)'; ctx.fillRect(0,0,W,H);
+  if(state==='start'){
+    ctx.fillStyle='#F5A623'; ctx.font='bold 42px monospace'; ctx.textAlign='center';
+    ctx.fillText('POG RUNNER',W/2,H/2-60);
+    ctx.fillStyle='#ffbe4d'; ctx.font='bold 14px monospace';
+    ctx.fillText('SUDARSHAN · BUILDER · CREATOR',W/2,H/2-30);
+    ctx.fillStyle='#888'; ctx.font='bold 11px monospace';
+    ctx.fillText('SPACE / TAP to jump  ·  Double jump!',W/2,H/2+5);
+    ctx.fillText('Collect CODE BLOCKS  ·  Avoid BUGS',W/2,H/2+22);
+    drawRoundRect(W/2-100,H/2+40,200,44,4,'#F5A623',null);
+    ctx.fillStyle='#0d0d0d'; ctx.font='bold 20px monospace'; ctx.textAlign='center';
+    ctx.fillText('▶ PRESS START',W/2,H/2+68);
+  }
+  if(state==='dead'){
+    ctx.fillStyle='#cc2200'; ctx.font='bold 36px monospace'; ctx.textAlign='center';
+    ctx.fillText('GAME OVER',W/2,H/2-60);
+    ctx.fillStyle='#F5A623'; ctx.font='bold 16px monospace';
+    ctx.fillText(`SCORE: ${Math.floor(score)}`,W/2,H/2-25);
+    ctx.fillStyle='#ffbe4d'; ctx.font='bold 14px monospace';
+    ctx.fillText(`BEST:  ${Math.floor(hiScore)}`,W/2,H/2-4);
+    ctx.fillStyle='#888'; ctx.font='bold 11px monospace';
+    ctx.fillText('POG Sudarshan · pogpro.in',W/2,H/2+20);
+    drawRoundRect(W/2-100,H/2+38,200,44,4,'#F5A623',null);
+    ctx.fillStyle='#0d0d0d'; ctx.font='bold 20px monospace'; ctx.textAlign='center';
+    ctx.fillText('▶ PLAY AGAIN',W/2,H/2+66);
+  }
+}
+
+// ── PARTICLES ─────────────────────────────────────────────
+function drawParticles(){
+  particles.forEach(p=>{
+    ctx.globalAlpha=p.life;
+    ctx.fillStyle=p.col;
+    ctx.beginPath(); ctx.arc(px(p.x),px(p.y),p.r,0,Math.PI*2); ctx.fill();
+  });
+  ctx.globalAlpha=1;
+}
+
+// ── MAIN LOOP ─────────────────────────────────────────────
+function loop(){
+  if(state==='play') update();
+  drawBG();
+  drawGround();
+  platforms.forEach(drawPlatform);
+  coins.forEach(drawCoin);
+  bugs.forEach(drawBug);
+  drawParticles();
+  drawPlayer(player);
+  drawHUD();
+  if(state!=='play') drawOverlay();
+  requestAnimationFrame(loop);
+}
+loop();
+</script>
+</body>
+</html>
