@@ -4,8 +4,8 @@
 
 <div align="center">
 
-<!-- ANIMATED HEADER — ORANGE/BLACK BRAND -->
-<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=0:0d0d0d,40:1a1a1a,100:F5A623&height=220&section=header&text=SUDARSHAN%20POG&fontSize=58&fontColor=ffffff&fontAlignY=40&fontAlign=50&desc=Builder%20%C2%B7%20Creator%20%C2%B7%20Innovator&descAlignY=62&descSize=16&descAlign=50&animation=fadeIn&stroke=F5A623&strokeWidth=2" />
+<!-- PIXEL ART ANIMATED BANNER -->
+<img width="100%" src="./banner.svg" alt="POG Sudarshan — Pixel Art Game Banner" />
 
 <!-- TYPING TAGLINE -->
 <a href="https://pogpro.in">
