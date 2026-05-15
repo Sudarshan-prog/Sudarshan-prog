@@ -6,7 +6,7 @@
 
 <!-- PIXEL ART ANIMATED BANNER — clickable, opens the game -->
 <a href="https://sudarshan-prog.github.io/Sudarshan-prog/pog_sudarshan_game_v2.html" title="▶ Click to Play POG Runner!">
-  <img width="100%" src="./banner (1).svg" alt="POG Sudarshan — Click to Play!" />
+  <img width="100%" src="./banner (2).svg" alt="POG Sudarshan — Click to Play!" />
 </a>
 
 <!-- GAME CTA -->
