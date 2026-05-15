@@ -6,11 +6,13 @@
 
 <!-- PIXEL ART ANIMATED BANNER — clickable, opens the game -->
 <a href="https://sudarshan-prog.github.io/Sudarshan-prog/pog_sudarshan_game_v2.html" title="▶ Click to Play POG Runner!">
-  <img width="100%" src="./banner.svg" alt="POG Sudarshan — Click to Play!" />
+  <img width="100%" src="./pog_banner_clicktoplay.svg" alt="POG Sudarshan — Click to Play!" />
 </a>
 
 <!-- GAME CTA -->
-<sub>🎮 <b>The banner above is playable</b> — click it to launch POG Runner!</sub>
+<a href="https://sudarshan-prog.github.io/Sudarshan-prog/pog_sudarshan_game_v2.html">
+  <img src="https://img.shields.io/badge/🎮_CLICK_BANNER_TO_PLAY_POG_RUNNER-LIVE-F5A623?style=for-the-badge&labelColor=0d0d0d" alt="Play Game"/>
+</a>
 
 <br/><br/>
 
@@ -180,15 +182,38 @@ const SUDARSHAN = {
 
 <div align="center">
 
-[![Play POG Runner](https://img.shields.io/badge/🎮_PLAY_POG_RUNNER-_-F5A623?style=for-the-badge&labelColor=0d0d0d)](https://sudarshan-prog.github.io/Sudarshan-prog/pog_sudarshan_game_v2.html)
+<!-- CLICK-TO-PLAY VISUAL CARD -->
+<a href="https://sudarshan-prog.github.io/Sudarshan-prog/pog_sudarshan_game_v2.html">
+<img src="https://readme-typing-svg.demolab.com?font=Black+Ops+One&size=13&pause=99999&color=F5A623&center=true&vCenter=true&multiline=true&repeat=false&width=860&height=20&lines=🎮+SPACE+%2F+TAP+to+jump+·+Double+Jump+·+Collect+CODE+BLOCKS+·+Avoid+BUG+enemies" alt="controls"/>
+</a>
+
+<a href="https://sudarshan-prog.github.io/Sudarshan-prog/pog_sudarshan_game_v2.html">
 
 ```
-SPACE / TAP → Jump    ·    Double Jump enabled
-Collect [ CODE BLOCKS ] to score
-Avoid   < BUG enemies > or it's game over
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                                                                              ║
+║         ██████╗  ██████╗  ██████╗     ██████╗ ██╗   ██╗███╗  ██╗           ║
+║         ██╔══██╗██╔═══██╗██╔════╝     ██╔══██╗██║   ██║████╗ ██║           ║
+║         ██████╔╝██║   ██║██║  ███╗    ██████╔╝██║   ██║██╔██╗██║           ║
+║         ██╔═══╝ ██║   ██║██║   ██║    ██╔══██╗██║   ██║██║╚████║           ║
+║         ██║     ╚██████╔╝╚██████╔╝    ██║  ██║╚██████╔╝██║ ╚███║           ║
+║         ╚═╝      ╚═════╝  ╚═════╝     ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚══╝           ║
+║                                                                              ║
+║      🟠  A pixel art side-scroller built with pure HTML5 Canvas             ║
+║      ⚡  No libraries · No engines · Just physics code from scratch         ║
+║                                                                              ║
+║      ┌──────────────┐   ┌─────────────────┐   ┌──────────────────┐         ║
+║      │  SPACE / TAP │   │  COLLECT  </>   │   │  AVOID   🐛 BUG  │         ║
+║      │   to  Jump   │   │  CODE BLOCKS    │   │  or  game  over  │         ║
+║      │  Double jump │   │  for +10 pts    │   │  beat hi-score!  │         ║
+║      └──────────────┘   └─────────────────┘   └──────────────────┘         ║
+║                                                                              ║
+║                    ▶  CLICK HERE TO PLAY  ◀                                 ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
 ```
 
-> Built with pure HTML5 Canvas + physics — no libraries, no engines. Just code.
+</a>
 
 </div>
 
