@@ -182,12 +182,8 @@ const SUDARSHAN = {
 
 <div align="center">
 
-<!-- CLICK-TO-PLAY VISUAL CARD -->
-<a href="https://sudarshan-prog.github.io/Sudarshan-prog/pog_sudarshan_game_v2.html">
-<img src="https://readme-typing-svg.demolab.com?font=Black+Ops+One&size=13&pause=99999&color=F5A623&center=true&vCenter=true&multiline=true&repeat=false&width=860&height=20&lines=🎮+SPACE+%2F+TAP+to+jump+·+Double+Jump+·+Collect+CODE+BLOCKS+·+Avoid+BUG+enemies" alt="controls"/>
-</a>
 
-<a href="https://sudarshan-prog.github.io/Sudarshan-prog/pog_sudarshan_game_v2.html">
+<a href="https://pog-runner-sudarshan.netlify.app">
 
 ```
 ╔══════════════════════════════════════════════════════════════════════════════╗
