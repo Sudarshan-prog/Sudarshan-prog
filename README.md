@@ -29,7 +29,7 @@
     <img src="https://img.shields.io/badge/🌐_POGPRO.IN-F5A623?style=for-the-badge&logoColor=black&labelColor=0d0d0d"/>
   </a>
   <a href="mailto:epicvisionsan@gmail.com">
-    <img src="https://img.shields.io/badge/GMAIL-EA4335?style=for-the-badge&logo=gmail&logoColor=white&labelColor=0d0d0d"/>
+    <img src="https://img.shields.io/badge/GMAIL-0d0d0d?style=for-the-badge&logo=gmail&logoColor=F5A623&labelColor=0d0d0d"/>
   </a>
   <a href="https://linkedin.com/in/sudarshan-s" target="_blank">
     <img src="https://img.shields.io/badge/LINKEDIN-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white&labelColor=0d0d0d"/>
