@@ -26,16 +26,16 @@
 <!-- BRAND BADGE ROW -->
 <p>
   <a href="https://pogpro.in" target="_blank">
-    <img src="https://img.shields.io/badge/🌐_POGPRO.IN-F5A623?style=for-the-badge&logoColor=black&labelColor=0d0d0d"/>
+    <img src="https://img.shields.io/badge/🌐_POGPRO.IN-F5A623?style=for-the-badge&logoColor=ffffff&labelColor=0d0d0d"/>
   </a>
   <a href="mailto:epicvisionsan@gmail.com">
-    <img src="https://img.shields.io/badge/GMAIL-0d0d0d?style=for-the-badge&logo=gmail&logoColor=F5A623&labelColor=0d0d0d"/>
+    <img src="https://img.shields.io/badge/GMAIL-red?style=for-the-badge&logo=gmail&logoColor=red&labelColor=ffffff"/>
   </a>
   <a href="https://linkedin.com/in/sudarshan-s" target="_blank">
     <img src="https://img.shields.io/badge/LINKEDIN-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white&labelColor=0d0d0d"/>
   </a>
   <a href="https://github.com/Sudarshan-prog" target="_blank">
-    <img src="https://img.shields.io/badge/GITHUB-0d0d0d?style=for-the-badge&logo=github&logoColor=F5A623&labelColor=0d0d0d"/>
+    <img src="https://img.shields.io/badge/GITHUB-ffffff?style=for-the-badge&logo=github&logoColor=0d0d0d&labelColor=F5A623"/>
   </a>
 </p>
 
