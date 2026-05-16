@@ -5,7 +5,7 @@
 <div align="center">
 
 <!-- PIXEL ART ANIMATED BANNER — clickable, opens the game -->
-<a href="https://sudarshan-prog.github.io/Sudarshan-prog/pog_runner_v3_upgraded.html" title="▶ Click to Play POG Runner!">
+<a href="https://pog-runner-sudarshan.netlify.app" title="▶ Click to Play POG Runner!">
   <img width="100%" src="./banner (2).svg" alt="POG Sudarshan — Click to Play!" />
 </a>
 
