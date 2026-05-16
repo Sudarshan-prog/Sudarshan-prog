@@ -35,7 +35,7 @@
     <img src="https://img.shields.io/badge/LINKEDIN-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white&labelColor=0d0d0d"/>
   </a>
   <a href="https://github.com/Sudarshan-prog" target="_blank">
-    <img src="https://img.shields.io/badge/GITHUB-ffffff?style=for-the-badge&logo=github&logoColor=black&labelColor=0d0d0d"/>
+    <img src="https://img.shields.io/badge/GITHUB-0d0d0d?style=for-the-badge&logo=github&logoColor=ffffff&labelColor=F5A623"/>
   </a>
 </p>
 
