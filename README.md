@@ -221,8 +221,8 @@ const SUDARSHAN = {
 
 <div align="center">
 
-<img height="180em" src="https://github-readme-stats.vercel.app/api?username=Sudarshan-prog&show_icons=true&theme=dark&include_all_commits=true&count_private=true&hide_border=true&bg_color=0d0d0d&title_color=F5A623&icon_color=F5A623&text_color=ffffff&ring_color=F5A623" />
-<img height="180em" src="https://github-readme-stats.vercel.app/api/top-langs/?username=Sudarshan-prog&layout=compact&langs_count=8&theme=dark&hide_border=true&bg_color=0d0d0d&title_color=F5A623&text_color=ffffff" />
+<img height="180em" src="https://github-profile-summary-cards.vercel.app/api/cards/stats?username=Sudarshan-prog&theme=github_dark"/>
+<img height="180em" src="https://github-profile-summary-cards.vercel.app/api/cards/repos-per-language?username=Sudarshan-prog&theme=github_dark"/>
 
 </div>
 
